@@ -1,1 +1,1 @@
-# rock_paper_scissors_project
+# Computer Vision Project
