@@ -1,6 +1,8 @@
 # Computer Vision Project
 This rojects aim was to create a simple rock, paper, scissors game using computer vision tools
 
+> ![image](https://user-images.githubusercontent.com/105006854/173890732-8cbc4833-7b3d-4da7-b10f-5b65948f6aa6.png)
+
 ## Milestone 1
 - This first step in this milestone was to create a model for my rock, paper, scissors game. The tool utilised for this was Teachable-Machine. I used this website to create a model with 4 classes being, "Rock", "Paper", "Scissors" and "Nothing". This would be used later on in my code to integrate the game with my webcam.
 - A key consideration here was to ensure the model was taught using multiple different views to ensure the model could detect various different look of me showing either rock, paper or scissors. Another consideration was to not use too many datapoints as this could effectively 'break' the model and cause it to give false results
@@ -135,4 +137,86 @@ if __name__ == '__main__':
     play(option_list)
 ```
 ## Milestone 4
+- The final milestone required me to put this all together. So in essence replace the computer input via keys and change that to an input via the computer vision model I had built and trained in Milestones 1 & 2
+- The first step was to create a new method for the class, get_prediction(). This method would switch the webcam on when the user was asked for an input and depending on what was displayed, the model would return the most probable outcome shown. This would then be translated into a user input which would then be feed into the get_winner function created in milestone 3. 
+- This also saw the use of the "Nothing" class on the model as when this was the most probable outcome the computer would continue to ask for an input. 
+- This was then taken further by creating a countdown so the user was able to show the camera their input at a specific time allowing them to get ready
 
+>>> python
+``` python
+def get_prediction(self):
+        cap = cv2.VideoCapture(0)
+        data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
+        flag = False
+        while True: 
+            ret, frame = cap.read()
+            resized_frame = cv2.resize(frame, (224, 224), interpolation = cv2.INTER_AREA)
+            image_np = np.array(resized_frame)
+            normalized_image = (image_np.astype(np.float32) / 127.0) - 1 # Normalize the image
+            data[0] = normalized_image
+            prediction = model.predict(data)
+            cv2.imshow('video', frame)
+            # Press q to close the window 
+            
+            if cv2.waitKey(1) & 0xFF == ord('g'):
+                flag = True
+                start = time.time()
+            if flag == True:
+                end = 5 - (time.time() - start)
+                current_score = "You: " + str(self.user_score), "Computer: " + str(self.computer_score)
+                cv2.putText(frame, str(int(end)), (350,238), cv2.FONT_HERSHEY_COMPLEX, 2, (255, 0, 0), 3, cv2.LINE_4)
+                cv2.putText(frame, str(current_score), (31,445), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 255), 3, cv2.LINE_4)
+                cv2.imshow('frame', frame)
+                if end <= 0:
+                    print(prediction)
+                    if prediction[0][0] > 0.5:
+                        user_choice ="Rock"
+                    elif prediction[0][1] > 0.5:
+                        user_choice ="Paper"
+                    elif prediction[0][2] > 0.5:
+                        user_choice = "Scissors"
+                    elif prediction[0][3] > 0.5:
+                        flag = False
+                        continue
+                    break
+            else:
+                continue 
+        cap.release()
+        cv2.destroyAllWindows()
+        rps.get_winner(self, user_choice)
+```
+- In order to properly simultate the Rock, Paper, Scissors game a scoreboard was also created and the code looped so the first to 3 victories would win the game.
+
+>>> python
+``` python
+class rps:
+    def __init__(self, option_list) -> None:
+        self.computer_choice = random.choice(option_list)
+        self.computer_score = 0
+        self.user_score = 0
+        pass
+```
+>>> pyton
+``` python
+def play(option_list):
+    game = rps(option_list)
+
+    while True:
+        game.get_prediction()
+        if game.computer_score == 3:
+            print("The computer has won the game! Better luck next time.")
+            break
+        elif game.user_score == 3:
+            print("You have won the game! Congratulations")
+            break
+        else:
+            continue
+    
+if __name__ == '__main__':
+    option_list = ["Rock", "Paper", "Scissors"]
+    play(option_list)
+ ```
+ Finally to extend the project further I also put the countdown and scoreboard on the camera screen in order to keep track of the score and countdown easier.
+ 
+ ## Conclusion
+ 
