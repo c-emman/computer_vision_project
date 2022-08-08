@@ -1,5 +1,5 @@
 # Computer Vision Project
-This rojects aim was to create a simple rock, paper, scissors game using computer vision tools
+This projects aim was to create a simple rock, paper, scissors game using computer vision tools
 
 > ![image](https://user-images.githubusercontent.com/105006854/173890732-8cbc4833-7b3d-4da7-b10f-5b65948f6aa6.png)
 
